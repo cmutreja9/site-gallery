@@ -4,15 +4,13 @@
       <button type="button" name="Years" @click="groupByYear"> Years </button>
   <div class="gallery">
     <div v-if="!byYear">
-
-      <div class="gallery-panel" v-for="photo in photos" :key=photo.id>
-        <router-link :to="`/photo/${photo.id}`">
-          <img :src="thumbUrl(photo.filename)">
-        </router-link>
-      </div>
+      <gallery-display :photos="photos" />
     </div>
     <div v-else>
-      By Year is coming soon..
+      <div  v-for="(photo_, key) in byYear" :key="key">
+        <h2> {{key}} </h2>
+        <gallery-display :photos="photo_" />
+      </div>
     </div>
   </div>
 </div>
@@ -21,9 +19,13 @@
 <script>
   import photos from '@/photos.json'
   import groupBy from 'lodash/groupBy'
+  import GalleryDisplay from '@/components/GalleryDisplay.vue';
 
   export default {
     name: 'Gallery',
+    components: {
+      GalleryDisplay
+    },
     data() {
       return {
         byYear: false,
@@ -35,20 +37,22 @@
         return require(`../assets/images/thumbnails/${filename}`);
       },
 
-      sortByDate() {
-        console.log("Sorting by date!")
+      sortByDate(val=null) {
+        console.log("Sorting by date!", val)
+
         this.byYear = false;
         return this.photos.sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+
 
       },
 
       groupByYear(){
         var temp = Array.from(this.photos)
-        temp = temp.map(function(e) { e.year =  (new Date(e.datetime)).getFullYear(); return e})
+        temp = temp.map(function(e) { e.year =  (new Date(e.datetime)).getFullYear();
+                                      e.month = (new Date(e.datetime)).getMonth();
+                                      return e})
         temp = groupBy(temp,'year')
-
         this.byYear = temp;
-
       }
     }
   }
@@ -62,13 +66,5 @@
     max-width: 80rem;
     margin: 5rem auto;
     padding: 5rem 5rem;
-  }
-
-  .gallery-panel img {
-    width: 100%;
-    height: 22vw;
-    object-fit: cover;
-    border-radius: 0.75rem;
-
   }
 </style>
