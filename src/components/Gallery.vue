@@ -1,6 +1,6 @@
 <template >
   <div>
-      <button type="button" name="Sort by Date" @click="sortByDate"> Sort by Date</button>
+      <button type="button" name="Sort by Date" @click="clickSortByDate"> Sort by Date</button>
       <button type="button" name="Years" @click="groupByYear"> Years </button>
   <div class="gallery">
     <div v-if="!byYear">
@@ -37,13 +37,14 @@
         return require(`../assets/images/thumbnails/${filename}`);
       },
 
-      sortByDate(val=null) {
-        console.log("Sorting by date!", val)
+      sortByDate(arr) {
 
+        return arr.sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
+      },
+
+      clickSortByDate () {
         this.byYear = false;
-        return this.photos.sort((a, b) => new Date(b.datetime) - new Date(a.datetime))
-
-
+        this.sortByDate(this.photos)
       },
 
       groupByYear(){
@@ -52,6 +53,13 @@
                                       e.month = (new Date(e.datetime)).getMonth();
                                       return e})
         temp = groupBy(temp,'year')
+        var keys = Object.keys(temp).reverse()
+        console.log("keys",keys)
+
+        for (var i=0; i < temp.length; i++){
+          temp[keys[i]] = this.sortByDate(temp[keys[i]])
+        }
+        console.log(temp)
         this.byYear = temp;
       }
     }
